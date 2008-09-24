@@ -1,0 +1,1 @@
+simplest_auth is a Rails plugin to be used where Restful Authentication is a bit overkill
