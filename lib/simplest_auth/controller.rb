@@ -1,7 +1,9 @@
 module SimplestAuth
+  class UndefinedMethodError < StandardError; end
+  
   module Controller
     def user_class
-      raise 'Please define this method'
+      raise UndefinedMethodError
     end
 
     def authorized?

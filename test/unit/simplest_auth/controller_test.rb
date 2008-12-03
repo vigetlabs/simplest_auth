@@ -5,7 +5,9 @@ class ControllerTest < Test::Unit::TestCase
   
   context "the Controller module" do
     should "know what Class to use for a user" do
-      assert respond_to?(:user_class)
+      assert_raise SimplestAuth::UndefinedMethodError do 
+        user_class
+      end
     end
     
     should "know if a user is authorized" do
