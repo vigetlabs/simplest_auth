@@ -1,3 +1,5 @@
+require 'bcrypt'
+
 module SimplestAuth
   module Model
     def self.included(base)
@@ -13,18 +15,20 @@ module SimplestAuth
     end
     
     module InstanceMethods
-      # def authentic?(password)
-      #   Password.new(self.crypted_password) == password
-      # end
+      include BCrypt
+      
+      def authentic?(password)
+        Password.new(self.crypted_password) == password
+      end
 
       private  
-      # def hash_password
-      #   self.crypted_password = Password.create(self.password)
-      # end
-      # 
-      # def password_required?
-      #   self.crypted_password.blank? || !self.password.blank?
-      # end
+      def hash_password
+        self.crypted_password = Password.create(self.password)
+      end
+      
+      def password_required?
+        self.crypted_password.blank? || !self.password.blank?
+      end
     end
   end
 end
