@@ -1,22 +1,28 @@
 simplest_auth is a Rails plugin to be used where Restful Authentication is a bit overkill
 
-Usage:
-- Install the simplest_auth plugin from github:
-script/plugin install http://github.com/vigetlabs/simplest_auth.git
-- Install the bcrypt-ruby gem
-sudo gem install bcrypt-ruby
+h1. Usage:
 
-- Create your user model class and include SimplestAuth::Model; required fields are email and crypted_password (password/_confirmation are accessors)
-- Add validations however you'd like for email and password
-- Add a callback to hash the password into crypted_password, e.g.,
-before_create :hash_password
+* Install the simplest_auth plugin from github:
 
-- Include SimplestAuth::Controller in your Application controller
-- define a method user_class that simply returns the model class you defined, e.g.,
-def user_class
+bq. script/plugin install http://github.com/vigetlabs/simplest_auth.git
+
+* Install the bcrypt-ruby gem
+
+bq. sudo gem install bcrypt-ruby
+
+* Create your user model class and include SimplestAuth::Model; required fields are email and crypted_password (password/_confirmation are accessors)
+* Add validations however you'd like for email and password
+* Add a callback to hash the password into crypted_password, e.g.,
+
+bq. before_create :hash_password
+
+* Include SimplestAuth::Controller in your Application controller
+* define a method user_class that simply returns the model class you defined, e.g.,
+
+bq. def user_class
   User
 end
 
-BCrypt:
+h1. BCrypt:
 
 We chose to use bcrypt to avoid having to worry about complex hashing algorithms and salting, etc.
