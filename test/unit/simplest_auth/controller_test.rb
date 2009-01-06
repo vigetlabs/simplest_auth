@@ -99,6 +99,32 @@ class ControllerTest < Test::Unit::TestCase
       assert_equal "user", current_user
     end
     
+    should "return nil for the current user if it doesn't exist" do
+      user_stub = stub() {|s| s.stubs(:find).with('1').raises(ActiveRecord::RecordNotFound) }
+      
+      stubs(:user_class).with().returns(user_stub)
+      stubs(:current_user_id).with().returns('1')
+      stubs(:clear_session)
+      
+      assert_nil current_user
+    end
+    
+    should "be able to clear its session variables" do
+      expects(:session).with().returns(mock() {|m| m.expects(:[]=).with(:user_id, nil) })
+      clear_session
+    end
+    
+    should "clear the :user_id from session if the user cannot be found" do
+      user_stub = stub() {|s| s.stubs(:find).with('1').raises(ActiveRecord::RecordNotFound) }
+      
+      stubs(:user_class).with().returns(user_stub)
+      stubs(:current_user_id).with().returns('1')
+      
+      expects(:clear_session).with()
+      
+      current_user
+    end
+    
     should "allow assigning to the current user" do
       stubs(:session).returns({})
       user = mock(:id => 1)

@@ -1,28 +1,99 @@
-simplest_auth is a Rails plugin to be used where Restful Authentication is a bit overkill
+h1. SimplestAuth
 
-h1. Usage:
+simplest_auth is a plugin for Rails applications where RESTful Authentication is overkill - it handles authentication and nothing else (e.g. password resets, etc...)
 
-* Install the simplest_auth plugin from github:
+h2. Installation
 
-bq. script/plugin install http://github.com/vigetlabs/simplest_auth.git
+SimplestAuth depends (for now) on the BCrypt gem, so install that first:
 
-* Install the bcrypt-ruby gem
+    $ sudo gem install bcrypt-ruby
+    
+Install the plugin:
 
-bq. sudo gem install bcrypt-ruby
+    $ ./script/plugin install git://github.com/vigetlabs/simplest_auth.git
 
-* Create your user model class and include SimplestAuth::Model; required fields are email and crypted_password (password/_confirmation are accessors)
-* Add validations however you'd like for email and password
-* Add a callback to hash the password into crypted_password, e.g.,
+h2. Usage
 
-bq. before_create :hash_password
+SimplestAuth is an extension to the existing models and controllers in your Rails application.  It makes some decisions about how you structure your models, but will give you flexibility with naming and any ActiveRecord validations that you want to use.
 
-* Include SimplestAuth::Controller in your Application controller
-* define a method user_class that simply returns the model class you defined, e.g.,
+h3. Model Integration
 
-bq. def user_class
-  User
-end
+If you're starting out with a fresh User model, you just need @email@ and @crypted_password@ columns in your database:
 
-h1. BCrypt:
+    $ ./script/generate model User email:string crypted_password:string
+    
+To get started, just use the @SimplestAuth::Model@ mix-in in your User class:
+    
+    class User < ActiveRecord::Base
+      include SimplestAuth::Model
+    end
+    
+The module provides accessors for both @password@ and @password_confirmation@, but you will need to provide the validations required for your application.  Some sane defaults:
 
-We chose to use bcrypt to avoid having to worry about complex hashing algorithms and salting, etc.
+    validates_presence_of :email
+    validates_uniqueness_of :email
+
+    validates_presence_of :password, :on => :create
+    validates_confirmation_of :password
+    
+Before creating new records, you need to make sure that the password is crypted before storing the User in the database.  The mix-in provides a @hash_password@ method that should be called before creating a new record:
+
+    before_create :hash_password
+
+The full model class:
+
+    class User < ActiveRecord::Base
+      include SimplestAuth::Model
+
+      validates_presence_of :email
+      validates_uniqueness_of :email
+
+      validates_presence_of :password, :on => :create
+      validates_confirmation_of :password
+      
+      before_create :hash_password
+    end
+
+h3. Controller
+
+To initialize the Controller functionality for use in your application, you need to configure it in your @ApplicationController@:
+
+    class ApplicationController < ActionController::Base
+      include SimplestAuth::Controller
+      
+      def user_class; User; end
+    end
+    
+The plugin requires you to define the @user_class@ method so that it can find the appropriate object in your application.  Once that is configured, you can use the controller methods in your application - logging in, for example:
+
+    class SessionsController < ApplicationController
+    
+      def new; end
+    
+      def create
+        if user = User.authenticate(params[:email], params[:password])
+          self.current_user = user
+          flash[:notice] = 'Welcome!'
+          redirect_to root_path
+        end
+        flash.now[:error] =  "Couldn't locate a user with those credentials"
+        render :action => :new
+      end
+    end
+    
+h3. Helpers
+
+The plug-in also defines some convenient helpers to use in your views:
+
+* *@current_user@*: The user object of the currently logged-in user (or nil if the user isn't logged-in)
+* *@logged_in?@*: Is there a user logged in?
+
+h2. TODO
+
+* Document the usage of helper methods (e.g. :logged_in? / :authorized?) in the controller
+* Define a :password_required? method for the model mix-in so that we don't always have to validate passwords / password confirmations
+* Define a configuration for SimplestAuth that specifies the model name that can be configured in a Rails initializer (and defaults to 'User')
+
+h2. Credits
+
+Tony Pitale and Matt Swasey of Viget Labs (http://www.viget.com)

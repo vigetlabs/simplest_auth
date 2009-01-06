@@ -38,7 +38,15 @@ module SimplestAuth
     end
 
     def current_user
-      @current_user ||= user_class.find(current_user_id)
+      if @current_user.nil?
+        begin
+          @current_user = user_class.find(current_user_id)
+        rescue ActiveRecord::RecordNotFound
+          clear_session
+          @current_user = nil
+        end
+      end
+      @current_user
     end
 
     def current_user=(user)
@@ -48,6 +56,10 @@ module SimplestAuth
 
     def current_user_id
       session[:user_id]
+    end
+    
+    def clear_session
+      session[:user_id] = nil
     end
     
     def self.included(base)
