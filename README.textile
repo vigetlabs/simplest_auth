@@ -93,6 +93,7 @@ h2. TODO
 * Document the usage of helper methods (e.g. :logged_in? / :authorized?) in the controller
 * Define a :password_required? method for the model mix-in so that we don't always have to validate passwords / password confirmations
 * Define a configuration for SimplestAuth that specifies the model name that can be configured in a Rails initializer (and defaults to 'User')
+* Enable the use of an identifier other than email, such as username
 
 h2. Credits
 
