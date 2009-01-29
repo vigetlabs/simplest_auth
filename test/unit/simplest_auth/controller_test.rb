@@ -3,13 +3,7 @@ require File.dirname(__FILE__) + '/../../test_helper'
 class ControllerTest < Test::Unit::TestCase
   include SimplestAuth::Controller
   
-  context "the Controller module" do
-    should "know what Class to use for a user" do
-      assert_raise SimplestAuth::UndefinedMethodError do 
-        user_class
-      end
-    end
-    
+  context "the Controller module" do    
     should "know if a user is authorized" do
       stubs(:logged_in?).returns(true)
       assert authorized?
