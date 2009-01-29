@@ -6,11 +6,11 @@ h2. Installation
 
 SimplestAuth depends (for now) on the BCrypt gem, so install that first:
 
-    $ sudo gem install bcrypt-ruby
+<pre><code>$ sudo gem install bcrypt-ruby</code></pre>
     
 Install the plugin:
 
-    $ ./script/plugin install git://github.com/vigetlabs/simplest_auth.git
+<pre><code>$ ./script/plugin install git://github.com/vigetlabs/simplest_auth.git</code></pre>
 
 h2. Usage
 
@@ -20,28 +20,33 @@ h3. Model Integration
 
 If you're starting out with a fresh User model, you just need an identifier such as @email@ and @crypted_password@ columns in your database:
 
-    $ ./script/generate model User email:string crypted_password:string
+<pre><code>$ ./script/generate model User email:string crypted_password:string</code></pre>
 
 To get started, just use the @SimplestAuth::Model@ mix-in, and tell it how you want to identify, in your User class:
 
+<pre><code>
     class User < ActiveRecord::Base
       include SimplestAuth::Model
       
       authenticate_by :email
     end
+</code></pre>
 
 The module provides accessors for both @password@ and @password_confirmation@, but you will need to provide the validations required for your application. A @password_required?@ method is defined, as well. Some sane defaults:
 
+<pre><code>
     validates_presence_of :email
     validates_uniqueness_of :email
     
     validates_presence_of :password, :on => :create
     validates_confirmation_of :password, :if => :password_required?
+</code></pre>
 
 Before creating new records, the password is crypted before storing the User in the database.
 
 The full model class:
 
+<pre><code>
     class User < ActiveRecord::Base
       include SimplestAuth::Model
       
@@ -51,19 +56,23 @@ The full model class:
       validates_presence_of :password, :on => :create
       validates_confirmation_of :password, :if => :password_required?
     end
+</code></pre>
 
 h3. Controller
 
 To initialize the Controller functionality for use in your application, you need to configure it in your @ApplicationController@:
 
+<pre><code>
     class ApplicationController < ActionController::Base
       include SimplestAuth::Controller
       
       def user_class; User; end
     end
+</code></pre>
 
 The plugin defines the @user_class@ method so that it can find the appropriate object in your application, it defaults to User but can be Account or anything else. Once that is configured, you can use the controller methods in your application - logging in, for example:
 
+<pre><code>
     class SessionsController < ApplicationController
       
       def new; end
@@ -79,6 +88,7 @@ The plugin defines the @user_class@ method so that it can find the appropriate o
         end
       end
     end
+</code></pre>
 
 h3. Helpers
 
