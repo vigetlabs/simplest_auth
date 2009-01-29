@@ -1,11 +1,14 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 
-class User
-  include SimplestAuth::Model
-end
+class User; end
 
 class UserTest < Test::Unit::TestCase
   include BCrypt
+  
+  # So we don't need ActiveRecord included
+  User.stubs(:before_create).with(:hash_password)
+  User.send(:include, SimplestAuth::Model)
+  User.authenticate_by :email
   
   context "the User class" do
     should "find a user by email for authentication" do

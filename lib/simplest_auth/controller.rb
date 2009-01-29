@@ -3,7 +3,7 @@ module SimplestAuth
   
   module Controller
     def user_class
-      raise UndefinedMethodError
+      User
     end
 
     def authorized?
