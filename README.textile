@@ -60,17 +60,15 @@ The full model class:
 
 h3. Controller
 
-To initialize the Controller functionality for use in your application, you need to configure it in your @ApplicationController@:
+To initialize the Controller functionality for use in your application, you need to include it in your @ApplicationController@:
 
 <pre><code>
     class ApplicationController < ActionController::Base
       include SimplestAuth::Controller
-      
-      def user_class; User; end
     end
 </code></pre>
 
-The plugin defines the @user_class@ method so that it can find the appropriate object in your application, it defaults to User but can be Account or anything else. Once that is configured, you can use the controller methods in your application - logging in, for example:
+The plugin defines the @user_class@ method so that it can find the appropriate object in your application, it defaults to User but can be Account or anything else. Once that is included, you can use the controller methods in your application - logging in, for example:
 
 <pre><code>
     class SessionsController < ApplicationController
