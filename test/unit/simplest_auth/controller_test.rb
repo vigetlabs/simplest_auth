@@ -1,5 +1,7 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 
+class ActiveRecord::RecordNotFound < StandardError; end
+
 class ControllerTest < Test::Unit::TestCase
   include SimplestAuth::Controller
   
