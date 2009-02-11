@@ -7,6 +7,7 @@ class UserTest < Test::Unit::TestCase
   
   # So we don't need ActiveRecord included
   User.stubs(:before_create).with(:hash_password)
+  User.stubs(:before).with(:create, :hash_password)
   User.send(:include, SimplestAuth::Model)
   User.authenticate_by :email
   
