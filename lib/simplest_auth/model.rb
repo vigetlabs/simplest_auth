@@ -16,25 +16,25 @@ module SimplestAuth
         end
       elsif defined?(DataMapper)
         base.class_eval do
-          before :create, :hash_password
+          before :save, :hash_password
         end
       end
     end
     
     module ClassMethods
-      def authenticate_by(ident, password = true)
+      def authenticate_by(ident)
         if defined?(ActiveRecord)
           instance_eval <<-EOM
-            def authenticate(#{ident}#{', password' if password})
+            def authenticate(#{ident}, password)
               klass = find_by_#{ident}(#{ident})
-              #{'(klass && klass.authentic?(password)) ? klass : nil' if password}
+              (klass && klass.authentic?(password)) ? klass : nil
             end
           EOM
         elsif defined?(DataMapper)
           instance_eval <<-EOM
-            def authenticate(#{ident}#{', password' if password})
+            def authenticate(#{ident}, password)
               klass = first(:#{ident} => #{ident})
-              #{'(klass && klass.authentic?(password)) ? klass : nil' if password}
+              (klass && klass.authentic?(password)) ? klass : nil
             end
           EOM
         end
