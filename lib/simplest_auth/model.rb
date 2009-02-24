@@ -39,6 +39,16 @@ module SimplestAuth
           EOM
         end
       end
+      
+      def authenticate(email, password)
+        if defined?(ActiveRecord)
+          klass = find_by_email(email)
+        elsif defined?(DataMapper)
+          klass = first(:email => email)
+        end
+        
+        (klass && klass.authentic?(password)) ? klass : nil
+      end
     end
     
     module InstanceMethods
