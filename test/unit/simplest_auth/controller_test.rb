@@ -1,11 +1,13 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 
-class ActiveRecord::RecordNotFound < StandardError; end
+class User
+  class RecordNotFound < StandardError; end
+end
 
 class ControllerTest < Test::Unit::TestCase
   include SimplestAuth::Controller
-  
-  context "the Controller module" do    
+
+  context "the Controller module" do
     should "know if a user is authorized" do
       stubs(:logged_in?).returns(true)
       assert authorized?
@@ -96,12 +98,10 @@ class ControllerTest < Test::Unit::TestCase
     end
     
     should "return nil for the current user if it doesn't exist" do
-      user_stub = stub() {|s| s.stubs(:find).with('1').raises(ActiveRecord::RecordNotFound) }
-      
-      stubs(:user_class).with().returns(user_stub)
+      User.stubs(:find).with('1').raises(User::RecordNotFound)
       stubs(:current_user_id).with().returns('1')
       stubs(:clear_session)
-      
+
       assert_nil current_user
     end
     
@@ -111,13 +111,10 @@ class ControllerTest < Test::Unit::TestCase
     end
     
     should "clear the :user_id from session if the user cannot be found" do
-      user_stub = stub() {|s| s.stubs(:find).with('1').raises(ActiveRecord::RecordNotFound) }
-      
-      stubs(:user_class).with().returns(user_stub)
+      User.stubs(:find).with('1').raises(User::RecordNotFound)
       stubs(:current_user_id).with().returns('1')
-      
       expects(:clear_session).with()
-      
+
       current_user
     end
     

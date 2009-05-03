@@ -41,7 +41,7 @@ module SimplestAuth
       if @current_user.nil?
         begin
           @current_user = user_class.find(current_user_id)
-        rescue ActiveRecord::RecordNotFound
+        rescue user_class::RecordNotFound
           clear_session
           @current_user = nil
         end
