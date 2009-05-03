@@ -1,22 +1,51 @@
-require 'rake'
+require 'rubygems'
+require 'rake/gempackagetask'
 require 'rake/testtask'
-require 'rake/rdoctask'
 
-desc 'Default: run unit tests.'
+require 'lib/simplest_auth/version'
+
 task :default => :test
 
-desc 'Test the simplest_auth plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.pattern = 'test/**/*_test.rb'
+spec = Gem::Specification.new do |s|
+  s.name            = 'simplest_auth'
+  s.version         = SimplestAuth::Version.to_s
+  s.summary         = "Simple implementation of authentication for Rails"
+  s.author          = 'Tony Pitale'
+  s.email           = 'tony.pitale@viget.com'
+  s.homepage        = 'http://viget.com/extend'
+  s.files           = %w(README.textile Rakefile) + Dir.glob("lib/**/*")
+  s.test_files      = Dir.glob("test/**/*_test.rb")
+  
+  s.add_dependency('bcrypt-ruby', '~> 2.0.5')
+end
+
+Rake::GemPackageTask.new(spec) do |pkg|
+  pkg.gem_spec = spec
+end
+
+Rake::TestTask.new do |t|
+  t.libs << 'test'
+  t.test_files = FileList["test/**/*_test.rb"]
   t.verbose = true
 end
 
-desc 'Generate documentation for the simplest_auth plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'SimplestAuth'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+desc 'Generate the gemspec to serve this Gem from Github'
+task :github do
+  file = File.dirname(__FILE__) + "/#{spec.name}.gemspec"
+  File.open(file, 'w') {|f| f << spec.to_ruby }
+  puts "Created gemspec: #{file}"
 end
+
+begin
+  require 'rcov/rcovtask'
+  
+  desc "Generate RCov coverage report"
+  Rcov::RcovTask.new(:rcov) do |t|
+    t.test_files = FileList['test/**/*_test.rb']
+    t.rcov_opts << "-x lib/simplest_auth.rb -x lib/simplest_auth/version.rb"
+  end
+rescue LoadError
+  nil
+end
+
+task :default => 'test'
