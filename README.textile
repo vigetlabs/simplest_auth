@@ -1,16 +1,18 @@
 h1. SimplestAuth
 
-simplest_auth is a plugin for Rails applications where RESTful Authentication is overkill - it handles authentication and nothing else (e.g. password resets, etc...)
+simplest_auth is a gem to be used with Rails applications where RESTful Authentication is overkill - it handles authentication and nothing else (e.g. password resets, etc...)
+
+simplest_auth is now compatible with both ActiveRecord and DataMapper (the README displays examples for AR)
 
 h2. Installation
 
 SimplestAuth depends (for now) on the BCrypt gem, so install that first:
 
 <pre><code>$ sudo gem install bcrypt-ruby</code></pre>
-    
-Install the plugin:
 
-<pre><code>$ ./script/plugin install git://github.com/vigetlabs/simplest_auth.git</code></pre>
+Configure for the gem:
+
+<pre><code>config.gem 'vigetlabs-simplest_auth', :lib => 'simplest_auth'</code></pre>
 
 h2. Usage
 
