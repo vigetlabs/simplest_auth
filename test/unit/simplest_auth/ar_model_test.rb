@@ -1,13 +1,13 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 
-class ARUser; end
+ARUser = Class.new
 
 class ARUserTest < Test::Unit::TestCase
   include BCrypt
 
   context "with ActiveRecord" do
     setup do
-      ::ActiveRecord = Module.new
+      ARUser.stubs(:active_record?).returns(true)
       ARUser.expects(:before_save).with(:hash_password, :if => :password_required?)
       ARUser.send(:include, SimplestAuth::Model)
     end
@@ -41,10 +41,6 @@ class ARUserTest < Test::Unit::TestCase
           assert_equal user, ARUser.authenticate('joeschmoe', 'password')
         end
       end
-    end
-
-    teardown do
-      Object.send(:remove_const, ::ActiveRecord.to_s.to_sym)
     end
   end
 end

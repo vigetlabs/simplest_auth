@@ -1,23 +1,24 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 
-class DMUser; end
+DMUser = Class.new
 
 class DMUserTest < Test::Unit::TestCase
   include BCrypt
 
   context "with DataMapper" do
     setup do
-      ::DataMapper = Module.new
+      DMUser.stubs(:active_record?).returns(false)
+      DMUser.stubs(:data_mapper?).returns(true)
       DMUser.expects(:before).with(:save, :hash_password, :if => :password_required?)
       DMUser.send(:include, SimplestAuth::Model)
     end
-  
+
     context "the DMUser class" do
       should "redefine authenticate for DM" do
         DMUser.expects(:instance_eval).with(kind_of(String))
         DMUser.authenticate_by :email
       end
-        
+
       should "have a default authenticate to email" do
         user = mock do |m|
           m.expects(:authentic?).with('password').returns(true)
@@ -41,10 +42,6 @@ class DMUserTest < Test::Unit::TestCase
           assert_equal user, DMUser.authenticate('joeschmoe', 'password')
         end
       end
-    end
-
-    teardown do
-      Object.send(:remove_const, ::DataMapper.to_s.to_sym)
     end
   end
 end

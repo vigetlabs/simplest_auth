@@ -1,30 +1,26 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 
-class Account; end
+class User; end
 
-class AccountTest < Test::Unit::TestCase
+class UserTest < Test::Unit::TestCase
   include BCrypt
 
   context "with no ORM" do
     setup do
-      Account.send(:include, SimplestAuth::Model)
-    end
-
-    should "raise exception trying to authenticate by" do
-      assert_raise RuntimeError, "Some ORM is required!" do
-        Account.authenticate_by :email
-      end
+      User.stubs(:active_record?).returns(false)
+      User.stubs(:data_mapper?).returns(false)
+      User.send(:include, SimplestAuth::Model)
     end
 
     should "return nil for authenticate" do
-      assert_equal nil, Account.authenticate('email', 'password')
+      assert_equal nil, User.authenticate('email', 'password')
     end
   end
 
-  context "an instance of the Account class" do
+  context "an instance of the User class" do
     setup do
-      Account.send(:include, SimplestAuth::Model)
-      @user = Account.new
+      User.send(:include, SimplestAuth::Model)
+      @user = User.new
       @user.stubs(:crypted_password).returns('abcdefg')
     end
 

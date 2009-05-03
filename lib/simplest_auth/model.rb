@@ -8,11 +8,11 @@ module SimplestAuth
         attr_accessor :password, :password_confirmation
       end
 
-      if defined?(ActiveRecord)
+      if base.active_record?
         base.class_eval do
           before_save :hash_password, :if => :password_required?
         end
-      elsif defined?(DataMapper)
+      elsif base.data_mapper?
         base.class_eval do
           before :save, :hash_password, :if => :password_required?
         end
@@ -20,10 +20,18 @@ module SimplestAuth
     end
 
     module ClassMethods
+      def active_record?
+        defined?(ActiveRecord)
+      end
+
+      def data_mapper?
+        defined?(DataMapper)
+      end
+
       def authenticate(email, password)
-        if defined?(ActiveRecord)
+        if active_record?
           klass = find_by_email(email)
-        elsif defined?(DataMapper)
+        elsif data_mapper?
           klass = first(:email => email)
         end
 
@@ -31,22 +39,20 @@ module SimplestAuth
       end
 
       def authenticate_by(ident)
-        if defined?(ActiveRecord)
+        if active_record?
           instance_eval <<-EOM
             def authenticate(#{ident}, password)
               klass = find_by_#{ident}(#{ident})
               (klass && klass.authentic?(password)) ? klass : nil
             end
           EOM
-        elsif defined?(DataMapper)
+        elsif data_mapper?
           instance_eval <<-EOM
             def authenticate(#{ident}, password)
               klass = first(:#{ident} => #{ident})
               (klass && klass.authentic?(password)) ? klass : nil
             end
           EOM
-        else
-          raise "Some ORM is required!"
         end
       end
     end
