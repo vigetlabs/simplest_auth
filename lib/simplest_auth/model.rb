@@ -14,7 +14,7 @@ module SimplestAuth
         end
       elsif base.data_mapper?
         base.class_eval do
-          before :save, :hash_password, :if => :password_required?
+          before(:save) {hash_password if password_required?}
         end
       end
     end

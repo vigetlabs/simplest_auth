@@ -9,7 +9,7 @@ class DMUserTest < Test::Unit::TestCase
     setup do
       DMUser.stubs(:active_record?).returns(false)
       DMUser.stubs(:data_mapper?).returns(true)
-      DMUser.expects(:before).with(:save, :hash_password, :if => :password_required?)
+      DMUser.stubs(:before)
       DMUser.send(:include, SimplestAuth::Model)
     end
 
