@@ -97,8 +97,8 @@ class ControllerTest < Test::Unit::TestCase
       assert_equal "user", current_user
     end
     
-    should "return nil for the current user if it doesn't exist" do
-      User.stubs(:find).with('1').raises(User::RecordNotFound)
+    should "clear session and return nil for the current user if it doesn't exist" do
+      User.stubs(:find).with('1').returns(nil)
       stubs(:current_user_id).with().returns('1')
       stubs(:clear_session)
 
@@ -110,12 +110,12 @@ class ControllerTest < Test::Unit::TestCase
       clear_session
     end
     
-    should "clear the :user_id from session if the user cannot be found" do
-      User.stubs(:find).with('1').raises(User::RecordNotFound)
+    should "find with first when class doesn't respond to find" do
+      User.expects(:respond_to?).with(:find).returns(false)
+      User.stubs(:first).with(:id => '1').returns("user")
       stubs(:current_user_id).with().returns('1')
-      expects(:clear_session).with()
 
-      current_user
+      assert_equal "user", current_user
     end
     
     should "allow assigning to the current user" do
@@ -138,6 +138,13 @@ class ControllerTest < Test::Unit::TestCase
     
     should "have a default login error message" do
       assert_equal "Login or Registration Required", login_message
+    end
+
+    should "return the current_user, repeatedly" do
+      User.expects(:find).with(1).returns("user")
+      expects(:current_user_id).returns(1)
+
+      assert_equal "user", current_user
     end
   end
   

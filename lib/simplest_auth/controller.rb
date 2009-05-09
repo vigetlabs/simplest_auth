@@ -38,15 +38,13 @@ module SimplestAuth
     end
 
     def current_user
-      if @current_user.nil?
-        begin
-          @current_user = user_class.find(current_user_id)
-        rescue user_class::RecordNotFound
-          clear_session
-          @current_user = nil
+      @current_user ||= begin
+        if user_class.respond_to?(:find)
+          user_class.find(current_user_id)
+        else
+          user_class.first(:id => current_user_id)
         end
-      end
-      @current_user
+      end || clear_session
     end
 
     def current_user=(user)
