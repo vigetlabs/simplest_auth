@@ -4,6 +4,15 @@ simplest_auth is a gem to be used with Rails applications where RESTful Authenti
 
 simplest_auth is now compatible with both ActiveRecord and DataMapper (the README displays examples for AR)
 
+h2. Changes!
+
+Version 0.2.0 has a change to handle multiple Model session keys. If you are using User as your model class then you shouldn't have a problem. However, if you're using another
+class, you will either need to override the <pre><code>session_key</code></pre> method to return <pre><code>:user_id</code></pre> or just accept that a few sessions will be lost.
+
+If you don't care about losing sessions, just go ahead and ignore this message.
+
+If you use this gem in Rails (like most, I suspect), the session_key method will return the model class underscored plus "_id" as a symbol. Otherwise, it's just #downcased (lame).
+
 h2. Installation
 
 SimplestAuth depends (for now) on the BCrypt gem, so install that first:

@@ -1,9 +1,13 @@
 module SimplestAuth
   class UndefinedMethodError < StandardError; end
-  
+
   module Controller
     def user_class
       User
+    end
+
+    def session_key
+      user_class.session_key
     end
 
     def authorized?

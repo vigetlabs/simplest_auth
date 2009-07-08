@@ -55,12 +55,20 @@ module SimplestAuth
           EOM
         end
       end
+
+      def session_key
+        if name.to_s.respond_to?(:underscore)
+          "#{name.underscore}_id".to_sym
+        else
+          "#{name.downcase}_id".to_sym
+        end
+      end
     end
 
     module InstanceMethods
       include BCrypt
 
-      RecordNotFound = Class.new(StandardError)
+      RecordNotFound = Class.new(StandardError) unless defined?(RecordNotFound)
 
       def authentic?(password)
         Password.new(self.crypted_password) == password

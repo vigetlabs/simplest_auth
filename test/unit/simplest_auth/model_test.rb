@@ -17,7 +17,13 @@ class UserTest < Test::Unit::TestCase
     end
   end
 
-  context "an instance of the User class" do
+  context "The User class" do
+    should "define a session key" do
+      assert_equal :user_id, User.session_key
+    end
+  end
+
+  context "An instance of the User class" do
     setup do
       User.send(:include, SimplestAuth::Model)
       @user = User.new

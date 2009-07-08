@@ -146,6 +146,11 @@ class ControllerTest < Test::Unit::TestCase
 
       assert_equal "user", current_user
     end
+
+    should "adapt the session key for the user class" do
+      stubs(:user_class).returns(mock(:session_key => :user_id))
+      assert_equal :user_id, session_key
+    end
   end
   
 end
