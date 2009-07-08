@@ -2,6 +2,9 @@ require File.dirname(__FILE__) + '/../../test_helper'
 
 class User
   class RecordNotFound < StandardError; end
+  def self.session_key
+    :user_id
+  end
 end
 
 class ControllerTest < Test::Unit::TestCase

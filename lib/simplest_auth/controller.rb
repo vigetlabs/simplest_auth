@@ -52,16 +52,16 @@ module SimplestAuth
     end
 
     def current_user=(user)
-      session[:user_id] = user ? user.id : nil
+      session[session_key] = user ? user.id : nil
       @current_user = user || false
     end
 
     def current_user_id
-      session[:user_id]
+      session[session_key]
     end
     
     def clear_session
-      session[:user_id] = nil
+      session[session_key] = nil
     end
     
     def self.included(base)
