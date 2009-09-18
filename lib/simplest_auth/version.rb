@@ -3,7 +3,7 @@ module SimplestAuth
     
     MAJOR = 0
     MINOR = 2
-    TINY  = 1
+    TINY  = 2
     
     def self.to_s # :nodoc:
       [MAJOR, MINOR, TINY].join('.')
