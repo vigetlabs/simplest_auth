@@ -8,7 +8,7 @@ module SimplestAuth
         attr_accessor :password, :password_confirmation
       end
 
-      if base.active_record?
+      if base.active_record? || base.mongo_mapper?
         base.class_eval do
           before_save :hash_password, :if => :password_required?
         end
@@ -28,10 +28,14 @@ module SimplestAuth
         defined?(DataMapper)
       end
 
+      def mongo_mapper?
+        defined?(MongoMapper)
+      end
+
       def authenticate(email, password)
         if active_record?
           klass = find_by_email(email)
-        elsif data_mapper?
+        elsif data_mapper? || mongo_mapper?
           klass = first(:email => email)
         end
 
@@ -46,7 +50,7 @@ module SimplestAuth
               (klass && klass.authentic?(password)) ? klass : nil
             end
           EOM
-        elsif data_mapper?
+        elsif data_mapper? || mongo_mapper?
           instance_eval <<-EOM
             def authenticate(#{ident}, password)
               klass = first(:#{ident} => #{ident})
