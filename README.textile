@@ -21,7 +21,7 @@ SimplestAuth depends (for now) on the BCrypt gem, so install that first:
 
 Configure for the gem:
 
-<pre><code>config.gem 'vigetlabs-simplest_auth', :lib => 'simplest_auth'</code></pre>
+<pre><code>config.gem 'simplest_auth'</code></pre>
 
 h2. Usage
 
