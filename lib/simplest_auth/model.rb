@@ -8,13 +8,13 @@ module SimplestAuth
         attr_accessor :password, :password_confirmation
       end
 
-      if base.active_record? || base.mongo_mapper?
-        base.class_eval do
-          before_save :hash_password, :if => :password_required?
-        end
-      elsif base.data_mapper?
+      if base.data_mapper?
         base.class_eval do
           before(:save) {hash_password if password_required?}
+        end
+      elsif base.active_record? || base.mongo_mapper?
+        base.class_eval do
+          before_save :hash_password, :if => :password_required?
         end
       end
     end
