@@ -21,15 +21,15 @@ module SimplestAuth
 
     module ClassMethods
       def active_record?
-        defined?(ActiveRecord)
+        defined?(ActiveRecord) && ancestors.include?(ActiveRecord::Base)
       end
 
       def data_mapper?
-        defined?(DataMapper)
+        defined?(DataMapper) && ancestors.include?(DataMapper::Resource)
       end
 
       def mongo_mapper?
-        defined?(MongoMapper)
+        defined?(MongoMapper) && ancestors.include?(MongoMapper::Document)
       end
 
       def authenticate(email, password)
