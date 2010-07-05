@@ -75,7 +75,7 @@ module SimplestAuth
       RecordNotFound = Class.new(StandardError) unless defined?(RecordNotFound)
 
       def authentic?(password)
-        Password.new(self.crypted_password) == password
+        Password.new(self.crypted_password) == password rescue false
       end
 
       private

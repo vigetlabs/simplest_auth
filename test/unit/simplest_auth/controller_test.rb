@@ -89,8 +89,18 @@ class ControllerTest < Test::Unit::TestCase
       stubs(:current_user_id).returns(nil)
       assert_equal false, logged_in?
     end
-    
-    should "find the current user" do
+
+    should "#get the current user" do
+      user_stub = stub
+      user_stub.stubs(:get).with(1).returns("user")
+
+      stubs(:current_user_id).returns(1)
+      stubs(:user_class).returns(user_stub)
+
+      assert_equal "user", current_user
+    end
+
+    should "#find the current user when #get fails" do
       user_stub = stub()
       user_stub.stubs(:find).with(1).returns("user")
       
@@ -111,14 +121,6 @@ class ControllerTest < Test::Unit::TestCase
     should "be able to clear its session variables" do
       expects(:session).with().returns(mock() {|m| m.expects(:[]=).with(:user_id, nil) })
       clear_session
-    end
-    
-    should "find with first when class doesn't respond to find" do
-      User.expects(:respond_to?).with(:find).returns(false)
-      User.stubs(:first).with(:id => '1').returns("user")
-      stubs(:current_user_id).with().returns('1')
-
-      assert_equal "user", current_user
     end
     
     should "allow assigning to the current user" do
