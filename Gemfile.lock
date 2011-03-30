@@ -1,0 +1,20 @@
+PATH
+  remote: .
+  specs:
+    simplest_auth (0.2.10)
+      bcrypt-ruby (~> 2.1.1)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    bcrypt-ruby (2.1.4)
+    mocha (0.9.12)
+    shoulda (2.11.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  mocha
+  shoulda
+  simplest_auth!

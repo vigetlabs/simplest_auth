@@ -2,7 +2,7 @@ require 'rubygems'
 require 'rake/gempackagetask'
 require 'rake/testtask'
 
-require 'lib/simplest_auth/version'
+require File.expand_path('../lib/simplest_auth/version', __FILE__)
 
 task :default => :test
 
@@ -15,8 +15,11 @@ spec = Gem::Specification.new do |s|
   s.homepage        = 'http://viget.com/extend'
   s.files           = %w(README.textile Rakefile) + Dir.glob("lib/**/*")
   s.test_files      = Dir.glob("test/**/*_test.rb")
-  
+
   s.add_dependency('bcrypt-ruby', '~> 2.1.1')
+
+  s.add_development_dependency('shoulda')
+  s.add_development_dependency('mocha')
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
@@ -38,7 +41,7 @@ end
 
 begin
   require 'rcov/rcovtask'
-  
+
   desc "Generate RCov coverage report"
   Rcov::RcovTask.new(:rcov) do |t|
     t.test_files = FileList['test/**/*_test.rb']
