@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../../test_helper'
+require File.expand_path('../../../test_helper', __FILE__)
 
 class User; end
 
@@ -42,7 +42,7 @@ class UserTest < Test::Unit::TestCase
       password_stub = stub
       password_stub.stubs(:==).with('password').returns(false)
       Password.stubs(:new).with('abcdefg').returns(password_stub)
-      
+
       assert_equal false, @user.authentic?('password')
     end
 
@@ -50,7 +50,7 @@ class UserTest < Test::Unit::TestCase
       password_stub = mock
       password_stub.expects(:==).with('password').returns(true)
       Password.stubs(:new).with('abcdefg').returns(password_stub)
-      
+
       @user.authentic?('password')
     end
 
@@ -58,7 +58,7 @@ class UserTest < Test::Unit::TestCase
       password_stub = stub
       password_stub.stubs(:==).with('password').returns(true)
       Password.expects(:new).with('abcdefg').returns(password_stub)
-      
+
       @user.authentic?('password')
     end
 

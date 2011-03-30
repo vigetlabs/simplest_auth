@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../../test_helper'
+require File.expand_path('../../../test_helper', __FILE__)
 
 DMUser = Class.new
 
@@ -27,7 +27,7 @@ class DMUserTest < Test::Unit::TestCase
         DMUser.expects(:first).with(:email => 'joe@schmoe.com').returns(user)
         assert_equal user, DMUser.authenticate('joe@schmoe.com', 'password')
       end
-  
+
       context "with authenticate_by set to username" do
         setup do
           DMUser.authenticate_by :username
