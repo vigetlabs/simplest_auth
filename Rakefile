@@ -20,6 +20,7 @@ spec = Gem::Specification.new do |s|
 
   s.add_development_dependency('shoulda')
   s.add_development_dependency('mocha')
+  s.add_development_dependency('activemodel')
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
