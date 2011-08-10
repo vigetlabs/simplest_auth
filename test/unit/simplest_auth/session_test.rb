@@ -4,17 +4,7 @@ class AdminSession
   include SimplestAuth::Session
 end
 
-class Session
-  include SimplestAuth::Session
-  set_user_class_name 'User'
-end
-
 class Admin
-end
-
-class User
-  def self.authenticate(email, password)
-  end
 end
 
 class SimplestAuth::SessionTest < Test::Unit::TestCase
