@@ -24,6 +24,10 @@ module SimplestAuth
         sign_user_in_or_render
       end
 
+      def destroy
+        sign_user_out
+      end
+
       private
 
       def sign_user_in_or_render(options = {})
@@ -38,6 +42,15 @@ module SimplestAuth
         else
           render :new
         end
+      end
+
+      def sign_user_out(options = {})
+        message      = options[:message] || 'You have signed out'
+        redirect_url = options[:url] || root_url
+
+        self.current_user = nil
+        flash[:notice] = message
+        redirect_to redirect_url
       end
 
       def session_class

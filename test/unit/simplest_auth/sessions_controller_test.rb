@@ -40,6 +40,10 @@ class CustomSessionsController
   def create
     sign_user_in_or_render(:message => 'Hi', :url => '/admin')
   end
+
+  def destroy
+    sign_user_out(:message => 'Bye', :url => '/survey')
+  end
 end
 
 class SimplestAuth::SessionsControllerTest < Test::Unit::TestCase
@@ -62,7 +66,6 @@ class SimplestAuth::SessionsControllerTest < Test::Unit::TestCase
     end
 
     context "a GET to :new" do
-
       should "assign to @session" do
         ::Session.stubs(:new).with().returns(@session)
 
@@ -129,7 +132,28 @@ class SimplestAuth::SessionsControllerTest < Test::Unit::TestCase
       end
     end
 
-    context "a POST to :create with a customized controller" do
+    context "a DELETE to :destroy" do
+
+      should "remove the user from session" do
+        @controller.expects(:current_user=).with(nil)
+        @controller.destroy
+      end
+
+      should "set the flash" do
+        flash = mock() {|f| f.expects(:[]=).with(:notice, 'You have signed out') }
+        @controller.stubs(:flash).with().returns(flash)
+
+        @controller.destroy
+      end
+
+      should "redirect" do
+        @controller.expects(:redirect_to).with('/')
+        @controller.destroy
+      end
+
+    end
+
+    context "with a custom controller" do
       setup do
         @session = ::CustomSession.new
         @session.stubs(:user).returns(stub())
@@ -140,19 +164,35 @@ class SimplestAuth::SessionsControllerTest < Test::Unit::TestCase
         @controller = CustomSessionsController.new
       end
 
-      should "set the appropriate flash message" do
-        flash = mock()
-        flash.expects(:[]=).with(:notice, 'Hi')
+      context "a POST to :create" do
+        should "set the appropriate flash message" do
+          flash = mock() {|f| f.expects(:[]=).with(:notice, 'Hi') }
 
-        @controller.stubs(:flash).with().returns(flash)
+          @controller.stubs(:flash).with().returns(flash)
 
-        @controller.create
+          @controller.create
+        end
+
+        should "redirect to the specified URL" do
+          @controller.expects(:redirect_to).with('/admin')
+
+          @controller.create
+        end
       end
 
-      should "redirect to the specified URL" do
-        @controller.expects(:redirect_to).with('/admin')
+      context "a DELETE to :destroy" do
+        should "set the appropriate flash message" do
+          flash = mock() {|f| f.expects(:[]=).with(:notice, 'Bye') }
+          @controller.stubs(:flash).with().returns(flash)
 
-        @controller.create
+          @controller.destroy
+        end
+
+        should "redirect to the specified URL" do
+          @controller.expects(:redirect_to).with('/survey')
+
+          @controller.destroy
+        end
       end
     end
 
