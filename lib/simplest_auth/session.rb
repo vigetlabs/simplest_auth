@@ -1,19 +1,16 @@
 module SimplestAuth
   module Session
+    extend ActiveSupport::Concern
 
-    def self.included(other)
-      other.class_eval do
-        include InstanceMethods
-        extend ClassMethods
-        include ActiveModel::Validations
+    included do
+      include ActiveModel::Validations
 
-        attr_accessor :email, :password
+      attr_accessor :email, :password
 
-        validates :email, :presence => true
-        validates :password, :presence => true
+      validates :email, :presence => true
+      validates :password, :presence => true
 
-        validate :user_exists_for_credentials
-      end
+      validate :user_exists_for_credentials
     end
 
     module ClassMethods
