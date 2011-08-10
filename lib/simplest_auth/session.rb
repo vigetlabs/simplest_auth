@@ -4,6 +4,7 @@ module SimplestAuth
 
     included do
       include ActiveModel::Validations
+      include ActiveModel::Conversion
 
       attr_accessor :email, :password
 
@@ -38,6 +39,10 @@ module SimplestAuth
 
       def user
         @user ||= user_class.authenticate(email, password)
+      end
+
+      def persisted?
+        false
       end
 
       private
