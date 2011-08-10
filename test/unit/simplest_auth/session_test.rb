@@ -10,8 +10,8 @@ end
 class SimplestAuth::SessionTest < Test::Unit::TestCase
 
   context "The Session class" do
-    should "determine the user class name from the class name" do
-      assert_equal 'Admin', AdminSession.user_class_name
+    should "have a default value for the user class name" do
+      assert_equal 'User', ::Session.user_class_name
     end
 
     should "know the user class name when it's set" do

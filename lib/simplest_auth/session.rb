@@ -20,7 +20,7 @@ module SimplestAuth
       end
 
       def user_class_name
-        @user_class_name || name.demodulize.sub(/Session$/, '')
+        @user_class_name || 'User'
       end
 
       def user_class

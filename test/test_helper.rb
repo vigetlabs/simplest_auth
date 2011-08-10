@@ -11,7 +11,6 @@ require File.dirname(__FILE__) + '/../lib/simplest_auth'
 
 class Session
   include SimplestAuth::Session
-  set_user_class_name 'User'
 end
 
 class User
