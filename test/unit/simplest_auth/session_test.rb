@@ -80,9 +80,16 @@ class SimplestAuth::SessionTest < Test::Unit::TestCase
       assert_equal 'user', session.user
     end
 
+    should "not set errors on base if there is no email or password" do
+      session = Session.new(:email => ' ', :password => ' ')
+      session.valid?
+
+      assert_equal [], session.errors[:base]
+    end
+
     should "set an error when there is no user" do
-      session = Session.new
-      session.stubs(:user).with().returns(nil)
+      session = Session.new(:email => 'user@host.com', :password => 'password')
+      User.stubs(:authenticate).with('user@host.com', 'password').returns(nil)
 
       session.valid?
       assert_equal ["User not found for supplied credentials"], session.errors[:base]

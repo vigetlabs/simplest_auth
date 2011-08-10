@@ -11,7 +11,7 @@ module SimplestAuth
       validates :email, :presence => true
       validates :password, :presence => true
 
-      validate :user_exists_for_credentials
+      validate :user_exists_for_credentials, :if => :credentials_supplied?
     end
 
     module ClassMethods
@@ -49,6 +49,10 @@ module SimplestAuth
 
       def user_exists_for_credentials
         errors.add(:base, "#{user_class} not found for supplied credentials") unless user.present?
+      end
+
+      def credentials_supplied?
+        email.present? && password.present?
       end
     end
 
