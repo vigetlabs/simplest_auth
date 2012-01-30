@@ -46,7 +46,7 @@ module SimplestAuth
         if user_class.respond_to?(:get)
           user_class.get(current_user_id)
         else
-          user_class.find(current_user_id)
+          user_class.where(:id => current_user_id).first
         end
       end || clear_session
     end

@@ -101,18 +101,23 @@ class ControllerTest < Test::Unit::TestCase
     end
 
     should "#find the current user when #get fails" do
-      user_stub = stub()
-      user_stub.stubs(:find).with(1).returns("user")
-
-      stubs(:current_user_id).returns(1)
-      stubs(:user_class).returns(user_stub)
+      user = mock do |m|
+        m.expects(:where).with(:id => '1').returns(m)
+        m.expects(:first).returns("user")
+      end
+      stubs(:current_user_id).returns('1')
+      stubs(:user_class).returns(user)
 
       assert_equal "user", current_user
     end
 
     should "clear session and return nil for the current user if it doesn't exist" do
-      User.stubs(:find).with('1').returns(nil)
+      user = mock do |m|
+        m.expects(:where).with(:id => '1').returns(m)
+        m.expects(:first).returns(nil)
+      end
       stubs(:current_user_id).with().returns('1')
+      stubs(:user_class).returns(user)
       stubs(:clear_session)
 
       assert_nil current_user
@@ -146,7 +151,11 @@ class ControllerTest < Test::Unit::TestCase
     end
 
     should "return the current_user, repeatedly" do
-      User.expects(:find).with(1).returns("user")
+      user = mock do |m|
+        m.expects(:where).with(:id => 1).returns(m)
+        m.expects(:first).returns("user")
+      end
+      stubs(:user_class).returns(user)
       expects(:current_user_id).returns(1)
 
       assert_equal "user", current_user
