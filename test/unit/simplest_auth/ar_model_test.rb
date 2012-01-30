@@ -20,10 +20,11 @@ class ARUserTest < Test::Unit::TestCase
 
       should "have a default authenticate to email" do
         user = mock do |m|
+          m.expects(:first).returns(m)
           m.expects(:authentic?).with('password').returns(true)
         end
 
-        ARUser.expects(:find_by_email).with('joe@schmoe.com').returns(user)
+        ARUser.expects(:where).with(:email => 'joe@schmoe.com').returns(user)
         assert_equal user, ARUser.authenticate('joe@schmoe.com', 'password')
       end
 
@@ -32,12 +33,13 @@ class ARUserTest < Test::Unit::TestCase
           ARUser.authenticate_by :username
         end
 
-        should "find a user with email for authentication" do
+        should "find a user with username for authentication" do
           user = mock do |m|
+            m.expects(:first).returns(m)
             m.expects(:authentic?).with('password').returns(true)
           end
 
-          ARUser.expects(:find_by_username).with('joeschmoe').returns(user)
+          ARUser.expects(:where).with(:username => 'joeschmoe').returns(user)
           assert_equal user, ARUser.authenticate('joeschmoe', 'password')
         end
       end

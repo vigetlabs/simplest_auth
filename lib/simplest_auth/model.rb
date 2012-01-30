@@ -34,27 +34,27 @@ module SimplestAuth
 
       def authenticate(email, password)
         if active_record?
-          klass = find_by_email(email)
+          found = where(:email => email).first
         elsif data_mapper? || mongo_mapper?
-          klass = first(:email => email)
+          found = first(:email => email)
         end
 
-        (klass && klass.authentic?(password)) ? klass : nil
+        (found && found.authentic?(password)) ? found : nil
       end
 
       def authenticate_by(ident)
         if active_record?
           instance_eval <<-EOM
             def authenticate(#{ident}, password)
-              klass = find_by_#{ident}(#{ident})
-              (klass && klass.authentic?(password)) ? klass : nil
+              found = where(:#{ident} => #{ident}).first
+              (found && found.authentic?(password)) ? found : nil
             end
           EOM
         elsif data_mapper? || mongo_mapper?
           instance_eval <<-EOM
             def authenticate(#{ident}, password)
-              klass = first(:#{ident} => #{ident})
-              (klass && klass.authentic?(password)) ? klass : nil
+              found = first(:#{ident} => #{ident})
+              (found && found.authentic?(password)) ? found : nil
             end
           EOM
         end
