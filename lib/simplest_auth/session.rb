@@ -28,33 +28,30 @@ module SimplestAuth
       end
     end
 
-    module InstanceMethods
-      def initialize(attributes = {})
-        attributes.each {|k,v| send("#{k}=", v) }
-      end
-
-      def user_class
-        self.class.user_class
-      end
-
-      def user
-        @user ||= user_class.authenticate(email, password)
-      end
-
-      def persisted?
-        false
-      end
-
-      private
-
-      def user_exists_for_credentials
-        errors.add(:base, "#{user_class} not found for supplied credentials") unless user.present?
-      end
-
-      def credentials_supplied?
-        email.present? && password.present?
-      end
+    def initialize(attributes = {})
+      attributes.each {|k,v| send("#{k}=", v) }
     end
 
+    def user_class
+      self.class.user_class
+    end
+
+    def user
+      @user ||= user_class.authenticate(email, password)
+    end
+
+    def persisted?
+      false
+    end
+
+    private
+
+    def user_exists_for_credentials
+      errors.add(:base, "#{user_class} not found for supplied credentials") unless user.present?
+    end
+
+    def credentials_supplied?
+      email.present? && password.present?
+    end
   end
 end
