@@ -156,7 +156,7 @@ class ControllerTest < Test::Unit::TestCase
         m.expects(:first).returns("user")
       end
       stubs(:user_class).returns(user)
-      expects(:current_user_id).returns(1)
+      stubs(:current_user_id).returns(1)
 
       assert_equal "user", current_user
     end
