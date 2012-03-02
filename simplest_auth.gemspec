@@ -1,19 +1,20 @@
 # -*- encoding: utf-8 -*-
+require 'simplest_auth/version'
 
 Gem::Specification.new do |s|
   s.name = %q{simplest_auth}
-  s.version = "0.3.0"
+  s.version = SimplestAuth::Version.to_s
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tony Pitale"]
   s.date = %q{2011-03-30}
-  s.email = %q{tony.pitale@viget.com}
-  s.files = ["README.textile", "Rakefile", "lib/simplest_auth", "lib/simplest_auth/controller.rb", "lib/simplest_auth/model.rb", "lib/simplest_auth/session.rb", "lib/simplest_auth/version.rb", "lib/simplest_auth.rb", "test/unit/simplest_auth/ar_model_test.rb", "test/unit/simplest_auth/controller_test.rb", "test/unit/simplest_auth/dm_model_test.rb", "test/unit/simplest_auth/model_test.rb", "test/unit/simplest_auth/session_test.rb"]
+  s.email = %q{developers@viget.com}
   s.homepage = %q{http://viget.com/extend}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}
   s.summary = %q{Simple implementation of authentication for Rails}
-  s.test_files = ["test/unit/simplest_auth/ar_model_test.rb", "test/unit/simplest_auth/controller_test.rb", "test/unit/simplest_auth/dm_model_test.rb", "test/unit/simplest_auth/model_test.rb", "test/unit/simplest_auth/session_test.rb"]
+  s.files              = `git ls-files`.split("\n") rescue ''
+  s.test_files         = `git ls-files -- {test,spec,features}/*`.split("\n")
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
