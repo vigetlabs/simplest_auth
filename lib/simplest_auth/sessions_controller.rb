@@ -4,12 +4,16 @@ module SimplestAuth
 
     module ClassMethods
 
-      def set_session_class_name(session_class_name)
-        @session_class_name = session_class_name
+      def set_session_class_name(class_name)
+        @session_class_name = class_name
       end
 
       def session_class_name
-        @session_class_name || 'Session'
+        @session_class_name || session_class_name_from_controller
+      end
+
+      def session_class_name_from_controller
+        to_s.sub(/Controller$/, '').classify
       end
 
     end
@@ -28,11 +32,15 @@ module SimplestAuth
 
     private
 
+    def param_key
+      session_class.model_name.param_key.to_sym
+    end
+
     def sign_user_in_or_render(options = {})
       message      = options[:message] || 'You have signed in successfully'
       redirect_url = options[:url] || root_url
 
-      @session = session_class.new(params[:session])
+      @session = session_class.new(params[param_key])
       if @session.valid?
         self.current_user = @session.user
         flash[:notice] = message

@@ -29,13 +29,12 @@ class SessionsController
 end
 
 class CustomSession
+  include SimplestAuth::Session
 end
 
 class CustomSessionsController
   include SimplestAuth::SessionsController
   include DummyController
-
-  set_session_class_name 'CustomSession'
 
   def create
     sign_user_in_or_render(:message => 'Hi', :url => '/admin')
@@ -46,6 +45,12 @@ class CustomSessionsController
   end
 end
 
+class OtherSessionsController
+  include SimplestAuth::SessionsController
+
+  set_session_class_name 'CustomSession'
+end
+
 describe SimplestAuth::SessionsController do
   describe "#session_class" do
     it "returns the default session class" do
@@ -53,8 +58,13 @@ describe SimplestAuth::SessionsController do
       subject.send(:session_class).should == Session
     end
 
-    it "allows the session class to be overridden" do
+    it "knows the value based on the controller name" do
       subject = CustomSessionsController.new
+      subject.send(:session_class).should == CustomSession
+    end
+
+    it "can be overridden by the user" do
+      subject = OtherSessionsController.new
       subject.send(:session_class).should == CustomSession
     end
   end
@@ -75,7 +85,6 @@ describe SimplestAuth::SessionsController do
     end
 
     describe "#create" do
-
       it "assigns to @session" do
         ::Session.stub(:new).with('key' => 'value').and_return(new_session)
         subject.stub(:params).with().and_return(:session => {'key' => 'value'})
@@ -161,38 +170,51 @@ describe SimplestAuth::SessionsController do
 
     subject { ::CustomSessionsController.new }
 
-    before do
-      new_session.stub(:user).and_return(double('user'))
-      new_session.stub(:valid?).and_return(true)
-
-      ::CustomSession.stub(:new).and_return(new_session)
-    end
-
     describe "#create" do
-      it "sets the flash" do
-        flash = double('flash').tap {|f| f.should_receive(:[]=).with(:notice, 'Hi') }
+      it "assigns to @session with a key based on the session class" do
+        ::CustomSession.stub(:new).with('key' => 'value').and_return(new_session)
+        subject.stub(:params).with().and_return(:custom_session => {'key' => 'value'})
 
-        subject.stub(:flash).with().and_return(flash)
         subject.create
-      end
 
-      it "redirects" do
-        subject.should_receive(:redirect_to).with('/admin')
-        subject.create
+        subject.instance_variable_get(:@session).should == new_session
       end
     end
 
-    describe "#destroy" do
-      it "sets the flash" do
-        flash = double('flash').tap {|f| f.should_receive(:[]=).with(:notice, 'Bye') }
+    context "with a valid user session" do
+      before do
+        new_session.stub(:user).and_return(double('user'))
+        new_session.stub(:valid?).and_return(true)
 
-        subject.stub(:flash).with().and_return(flash)
-        subject.destroy
+        ::CustomSession.stub(:new).and_return(new_session)
       end
 
-      it "redirects" do
-        subject.should_receive(:redirect_to).with('/survey')
-        subject.destroy
+      describe "#create" do
+        it "sets the flash" do
+          flash = double('flash').tap {|f| f.should_receive(:[]=).with(:notice, 'Hi') }
+
+          subject.stub(:flash).with().and_return(flash)
+          subject.create
+        end
+
+        it "redirects" do
+          subject.should_receive(:redirect_to).with('/admin')
+          subject.create
+        end
+      end
+
+      describe "#destroy" do
+        it "sets the flash" do
+          flash = double('flash').tap {|f| f.should_receive(:[]=).with(:notice, 'Bye') }
+
+          subject.stub(:flash).with().and_return(flash)
+          subject.destroy
+        end
+
+        it "redirects" do
+          subject.should_receive(:redirect_to).with('/survey')
+          subject.destroy
+        end
       end
     end
 

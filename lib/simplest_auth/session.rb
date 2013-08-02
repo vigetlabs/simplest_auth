@@ -3,13 +3,11 @@ module SimplestAuth
     extend ActiveSupport::Concern
 
     included do
-      include ActiveModel::Validations
-      include ActiveModel::Conversion
+      include ActiveModel::Model
 
       attr_accessor :email, :password
 
-      validates :email, :presence => true
-      validates :password, :presence => true
+      validates :email, :password, :presence => true
 
       validate :user_exists_for_credentials, :if => :credentials_supplied?
     end
