@@ -1,7 +1,5 @@
 require 'rubygems'
-require 'test/unit'
-require 'shoulda'
-require 'mocha/setup'
+require 'bundler/setup'
 
 require 'active_model'
 
