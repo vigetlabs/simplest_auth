@@ -9,7 +9,10 @@ rescue LoadError
 end
 
 # SimplestAuth
+require 'simplest_auth/version'
 require 'simplest_auth/model'
 require 'simplest_auth/controller'
 require 'simplest_auth/sessions_controller'
 require 'simplest_auth/session'
+
+module SimplestAuth; end
