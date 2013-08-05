@@ -1,3 +1,5 @@
+require 'simplest_auth/callbacks'
+
 require 'simplest_auth/model/active_record'
 require 'simplest_auth/model/data_mapper'
 require 'simplest_auth/model/mongo_mapper'
@@ -13,6 +15,23 @@ module SimplestAuth
     end
 
     module ClassMethods
+      def authentication_identifier
+        @authentication_identifier || :email
+      end
+
+      def authenticate_by(identifier)
+        @authentication_identifier = identifier.to_sym
+      end
+
+      def find_matching_user(identifier_value)
+        first(authentication_identifier => identifier_value)
+      end
+
+      def authenticate(identifier_value, password)
+        found = find_matching_user(identifier_value)
+        (found && found.authentic?(password)) ? found : nil
+      end
+
       def session_key
         :"#{name.underscore}_id"
       end
