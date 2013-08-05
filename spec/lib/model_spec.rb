@@ -4,16 +4,6 @@ class User; end
 
 describe User do
 
-  describe ".authenticate" do
-    it "returns nil when there is no ORM" do
-      described_class.stub(:active_record?).and_return(false)
-      described_class.stub(:data_mapper?).and_return(false)
-      described_class.send(:include, SimplestAuth::Model)
-
-      described_class.authenticate('email', 'password').should be_nil
-    end
-  end
-
   describe ".session_key" do
     it "has a name based on the class name" do
       described_class.session_key.should == :user_id

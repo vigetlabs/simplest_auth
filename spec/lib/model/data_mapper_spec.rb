@@ -5,10 +5,8 @@ DMUser = Class.new
 describe DMUser do
 
   before do
-    described_class.stub(:active_record?).and_return(false)
-    described_class.stub(:data_mapper?).and_return(true)
     described_class.stub(:before)
-    described_class.send(:include, SimplestAuth::Model)
+    described_class.send(:include, SimplestAuth::Model::DataMapper)
   end
 
   describe ".authenticate" do
@@ -20,7 +18,7 @@ describe DMUser do
     end
 
     it "returns the matching user for the supplied username and password" do
-      DMUser.authenticate_by :username
+      described_class.authenticate_by :username
 
       user = double('user').tap {|u| u.stub(:authentic?).with('password').and_return(true) }
       described_class.stub(:first).with(:username => 'someuser').and_return(user)
