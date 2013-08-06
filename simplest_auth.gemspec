@@ -19,8 +19,11 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency('bcrypt-ruby', '~> 2.1.1')
 
-  spec.add_development_dependency 'bundler', '~> 1.3'
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'activemodel'
-  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency('bundler', '~> 1.3')
+  spec.add_development_dependency('rake')
+  spec.add_development_dependency('activerecord')
+  spec.add_development_dependency('datamapper')
+  spec.add_development_dependency('bson_ext') # Avoid warnings when running specs
+  spec.add_development_dependency('mongo_mapper')
+  spec.add_development_dependency('rspec')
 end

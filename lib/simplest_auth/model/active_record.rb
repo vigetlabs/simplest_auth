@@ -9,6 +9,10 @@ module SimplestAuth
       end
 
       module ClassMethods
+        def resource_for_id(id)
+          find_by_id(id)
+        end
+
         def find_matching_user(identifier_value)
           where(authentication_identifier => identifier_value).first
         end

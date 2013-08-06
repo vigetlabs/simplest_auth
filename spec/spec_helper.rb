@@ -11,7 +11,16 @@ class Session
   include SimplestAuth::Session
 end
 
-class User
-  def self.authenticate(email, password)
+class BaseModel
+  def self.inherited(other)
+    other.send(:include, ActiveModel::Model)
   end
+
+  def self.before_save(*args)
+    #noop
+  end
+end
+
+class User < BaseModel
+  include SimplestAuth::Model::ActiveRecord
 end

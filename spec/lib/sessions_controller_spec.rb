@@ -113,12 +113,15 @@ describe SimplestAuth::SessionsController do
           flash = double('flash')
           flash.should_receive(:[]=).with(:notice, 'You have signed in successfully')
 
+          new_session.stub(:user)
           subject.stub(:flash).with().and_return(flash)
 
           subject.create
         end
 
         it "redirects" do
+          new_session.stub(:user)
+
           subject.should_receive(:redirect_to).with('/')
           subject.create
         end

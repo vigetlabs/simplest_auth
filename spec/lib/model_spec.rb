@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-class User; end
-
 describe User do
 
   describe ".session_key" do

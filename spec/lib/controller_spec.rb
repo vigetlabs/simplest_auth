@@ -1,29 +1,133 @@
 require 'spec_helper'
 
-class User
-  class RecordNotFound < StandardError; end
-  def self.session_key
-    :user_id
-  end
+class Teacher < BaseModel
+  include SimplestAuth::Model::ActiveRecord
+end
+
+class Administrator < BaseModel
+  include SimplestAuth::Model::ActiveRecord
 end
 
 class Controller
-  include SimplestAuth::Controller
+  def self.helper_method(*method_names)
+    # noop
+  end
 
   def new_session_url
     '/login'
   end
 end
 
-describe SimplestAuth::Controller do
-  subject { Controller.new }
+class BasicController < ::Controller
+  include SimplestAuth::Controller
+
+  track_authenticated :user
+end
+
+class CustomController < ::Controller
+  include SimplestAuth::Controller
+
+  track_authenticated :teacher, :administrator
+end
+
+describe BasicController do
+
+  describe "#current_user=" do
+    let(:user) { double('user', :id => 1) }
+
+    it "stores the user's ID in session" do
+      session = double('session').tap {|s| s.should_receive(:[]=).with(:user_id, 1) }
+      subject.stub(:session).and_return(session)
+
+      subject.send(:current_user=, user)
+    end
+
+    it "saves the current user to avoid lookup" do
+      subject.stub(:session).and_return({})
+
+      subject.send(:current_user=, user)
+      subject.send(:current_user).should == user
+    end
+  end
+
+  describe "#current_user" do
+    it "returns the current user" do
+      User.stub(:resource_for_id).with('1').and_return('user')
+      subject.stub(:current_user_id).and_return('1')
+
+      subject.send(:current_user).should == 'user'
+    end
+
+    it "clears the session for the current user if it doesn't exist" do
+      User.stub(:resource_for_id).with('1').and_return(nil)
+      subject.stub(:current_user_id).with().and_return('1')
+
+      subject.should_receive(:log_out_user)
+
+      subject.send(:current_user)
+    end
+
+    it "returns nil for the current user if it doesn't exist" do
+      User.stub(:resource_for_id).with('1').and_return(nil)
+      subject.stub(:current_user_id).with().and_return('1')
+      subject.stub(:log_out_user)
+
+      subject.send(:current_user).should be_nil
+    end
+  end
+
+  describe "#current_user_id" do
+    it "is fetched from session" do
+      subject.stub(:session).and_return({:user_id => 1})
+      subject.send(:current_user_id).should == 1
+    end
+  end
+
+  describe "#user_logged_in?" do
+    it "returns true when a user is logged in" do
+      subject.stub(:current_user).and_return('user')
+      subject.send(:user_logged_in?).should be(true)
+    end
+
+    it "returns false when a user is not logged in" do
+      subject.stub(:current_user).and_return(nil)
+      subject.send(:user_logged_in?).should be(false)
+    end
+  end
+
+  describe "#logged_in?" do
+    it "returns true when a user is logged in" do
+      subject.stub(:user_logged_in?).and_return(true)
+      subject.send(:logged_in?).should be(true)
+    end
+
+    it "returns false when a user is not logged in" do
+      subject.stub(:user_logged_in?).and_return(false)
+      subject.send(:logged_in?).should be(false)
+    end
+  end
 
   describe "#authorized?" do
     it "returns true if the user is logged in" do
       subject.stub(:logged_in?).and_return(true)
       subject.send(:authorized?).should be(true)
     end
+  end
 
+  describe "#log_out_user" do
+    it "clears the session variable" do
+      session = double('session').tap {|s| s.should_receive(:[]=).with(:user_id, nil) }
+      subject.stub(:session).and_return(session)
+
+      subject.send(:log_out_user)
+    end
+
+    it "returns nil" do
+      session = double('session').tap {|s| s.stub(:[]=).with(:user_id, nil) }
+      subject.stub(:session).and_return(session)
+
+      subject.send(:log_out_user).should be_nil
+    end
   end
 
   describe "#access_denied" do
@@ -111,94 +215,195 @@ describe SimplestAuth::Controller do
     end
   end
 
+end
+
+describe CustomController do
+
+  describe "#current_teacher=" do
+    let(:teacher) { double('teacher', :id => 1) }
+
+    it "stores the teacher's ID in session" do
+      session = double('session').tap {|s| s.should_receive(:[]=).with(:teacher_id, 1) }
+      subject.stub(:session).and_return(session)
+
+      subject.send(:current_teacher=, teacher)
+    end
+
+    it "saves the current teacher to avoid lookup" do
+      subject.stub(:session).and_return({})
+
+      subject.send(:current_teacher=, teacher)
+      subject.send(:current_teacher).should == teacher
+    end
+  end
+
+  describe "#current_administrator=" do
+    let(:administrator) { double('administrator', :id => 2) }
+
+    it "stores the administrator's ID in session" do
+      session = double('session').tap {|s| s.should_receive(:[]=).with(:administrator_id, 2) }
+      subject.stub(:session).and_return(session)
+
+      subject.send(:current_administrator=, administrator)
+    end
+
+    it "saves the current teacher to avoid lookup" do
+      subject.stub(:session).and_return({})
+
+      subject.send(:current_administrator=, administrator)
+      subject.send(:current_administrator).should == administrator
+    end
+  end
+
+  describe "#current_teacher" do
+    it "returns the current teacher" do
+      Teacher.stub(:resource_for_id).with('1').and_return('teacher')
+      subject.stub(:current_teacher_id).and_return('1')
+
+      subject.send(:current_teacher).should == 'teacher'
+    end
+
+    it "clears the session for the current teacher if it doesn't exist" do
+      Teacher.stub(:resource_for_id).with('1').and_return(nil)
+      subject.stub(:current_teacher_id).with().and_return('1')
+
+      subject.should_receive(:log_out_teacher)
+
+      subject.send(:current_teacher)
+    end
+
+    it "returns nil for the current teacher if it doesn't exist" do
+      Teacher.stub(:resource_for_id).with('1').and_return(nil)
+      subject.stub(:current_teacher_id).with().and_return('1')
+      subject.stub(:log_out_teacher)
+
+      subject.send(:current_teacher).should be_nil
+    end
+  end
+
+  describe "#current_administrator" do
+    it "returns the current administrator" do
+      Administrator.stub(:resource_for_id).with('1').and_return('administrator')
+      subject.stub(:current_administrator_id).and_return('1')
+
+      subject.send(:current_administrator).should == 'administrator'
+    end
+
+    it "clears the session for the current administrator if it doesn't exist" do
+      Administrator.stub(:resource_for_id).with('1').and_return(nil)
+      subject.stub(:current_administrator_id).with().and_return('1')
+
+      subject.should_receive(:log_out_administrator)
+
+      subject.send(:current_administrator)
+    end
+
+    it "returns nil for the current administrator if it doesn't exist" do
+      Administrator.stub(:resource_for_id).with('1').and_return(nil)
+      subject.stub(:current_administrator_id).with().and_return('1')
+      subject.stub(:log_out_administrator)
+
+      subject.send(:current_administrator).should be_nil
+    end
+  end
+
+  describe "#teacher_logged_in?" do
+    it "returns true when a teacher is logged in" do
+      subject.stub(:current_teacher).and_return('teacher')
+      subject.send(:teacher_logged_in?).should be(true)
+    end
+
+    it "returns false when a teacher is not logged in" do
+      subject.stub(:current_teacher).and_return(nil)
+      subject.send(:teacher_logged_in?).should be(false)
+    end
+  end
+
+  describe "#administrator_logged_in?" do
+    it "returns true when a administrator is logged in" do
+      subject.stub(:current_administrator).and_return('administrator')
+      subject.send(:administrator_logged_in?).should be(true)
+    end
+
+    it "returns false when a administrator is not logged in" do
+      subject.stub(:current_administrator).and_return(nil)
+      subject.send(:administrator_logged_in?).should be(false)
+    end
+  end
+
+  describe "#log_out_teacher" do
+    it "clears the session variable" do
+      session = double('session').tap {|s| s.should_receive(:[]=).with(:teacher_id, nil) }
+      subject.stub(:session).and_return(session)
+
+      subject.send(:log_out_teacher)
+    end
+
+    it "returns nil" do
+      session = double('session').tap {|s| s.stub(:[]=).with(:teacher_id, nil) }
+      subject.stub(:session).and_return(session)
+
+      subject.send(:log_out_teacher).should be_nil
+    end
+  end
+
+  describe "#log_out_administrator" do
+    it "clears the session variable" do
+      session = double('session').tap {|s| s.should_receive(:[]=).with(:administrator_id, nil) }
+      subject.stub(:session).and_return(session)
+
+      subject.send(:log_out_administrator)
+    end
+
+    it "returns nil" do
+      session = double('session').tap {|s| s.stub(:[]=).with(:administrator_id, nil) }
+      subject.stub(:session).and_return(session)
+
+      subject.send(:log_out_administrator).should be_nil
+    end
+  end
+
+  describe "#current_teacher_id" do
+    it "is fetched from session" do
+      subject.stub(:session).and_return({:teacher_id => 1})
+      subject.send(:current_teacher_id).should == 1
+    end
+  end
+
+  describe "#current_administrator_id" do
+    it "is fetched from session" do
+      subject.stub(:session).and_return({:administrator_id => 1})
+      subject.send(:current_administrator_id).should == 1
+    end
+  end
+
   describe "#logged_in?" do
-    it "returns true when a user is logged in" do
-      subject.stub(:current_user_id).and_return(1)
+    it "is false when no one is logged in" do
+      subject.stub(:teacher_logged_in?).and_return(false)
+      subject.stub(:administrator_logged_in?).and_return(false)
+
+      subject.send(:logged_in?).should be(false)
+    end
+
+    it "is true when a teacher is logged in" do
+      subject.stub(:teacher_logged_in?).and_return(true)
+      subject.stub(:administrator_logged_in?).and_return(false)
+
       subject.send(:logged_in?).should be(true)
     end
 
-    it "returns false when a user is not logged in" do
-      subject.stub(:current_user_id).and_return(nil)
-      subject.send(:logged_in?).should be(false)
-    end
-  end
+    it "is true when an administrator is logged in" do
+      subject.stub(:teacher_logged_in?).and_return(false)
+      subject.stub(:administrator_logged_in?).and_return(true)
 
-  describe "#current_user" do
-    it "returns the current user via #get" do
-      user_class = double('user class').tap {|u| u.stub(:get).with('1').and_return('user') }
-
-      subject.stub(:current_user_id).and_return('1')
-      subject.stub(:user_class).and_return(user_class)
-
-      subject.send(:current_user).should == 'user'
+      subject.send(:logged_in?).should be(true)
     end
 
-    it "returns the current user via #find when #get fails" do
-      user_class = double('user_class').tap do |u|
-        u.stub(:where).with(:id => '1').and_return(u)
-        u.stub(:first).and_return('user')
-      end
+    it "is true when both a teacher and administrator are logged in" do
+      subject.stub(:teacher_logged_in?).and_return(true)
+      subject.stub(:administrator_logged_in?).and_return(true)
 
-      subject.stub(:current_user_id).and_return('1')
-      subject.stub(:user_class).and_return(user_class)
-
-      subject.send(:current_user).should == 'user'
-    end
-
-    it "clears the session and returns nil for the current user if it doesn't exist" do
-      user_class = double('user_class').tap do |u|
-        u.stub(:where).with(:id => '1').and_return(u)
-        u.stub(:first).and_return(nil)
-      end
-
-      subject.stub(:current_user_id).with().and_return('1')
-      subject.stub(:user_class).and_return(user_class)
-
-      subject.should_receive(:clear_session)
-      subject.send(:current_user).should be_nil
-    end
-  end
-
-  describe "#clear_session" do
-    it "clears the session variable" do
-      session = double('session').tap {|s| s.should_receive(:[]=).with(:user_id, nil) }
-      subject.stub(:session).and_return(session)
-
-      subject.send(:clear_session)
-    end
-  end
-
-  describe "#current_user=" do
-    let(:user) { double('user', :id => 1) }
-
-    it "stores the user's ID in session" do
-      session = double('session').tap {|s| s.should_receive(:[]=).with(:user_id, 1) }
-      subject.stub(:session).and_return(session)
-
-      subject.send(:current_user=, user)
-    end
-
-    it "saves the current user to avoid lookup" do
-      subject.stub(:session).and_return({})
-
-      subject.send(:current_user=, user)
-      subject.send(:current_user).should == user
-    end
-  end
-
-  describe "#current_user_id" do
-    it "is fetched from session" do
-      subject.stub(:session).and_return({:user_id => 1})
-      subject.send(:current_user_id).should == 1
-    end
-  end
-
-  describe "#session_key" do
-    it "uses the value from the model class" do
-      user_class = double('user_class', :session_key => :user_id)
-      subject.stub(:user_class).and_return(user_class)
-
-      subject.send(:session_key).should == :user_id
+      subject.send(:logged_in?).should be(true)
     end
   end
 

@@ -2,12 +2,61 @@ module SimplestAuth
   class UndefinedMethodError < StandardError; end
 
   module Controller
-    def user_class
-      User
+    def self.included(base)
+      base.extend(ClassMethods)
+      base.send :helper_method, :authorized?
     end
 
-    def session_key
-      user_class.session_key
+    module ClassMethods
+      def track_authenticated(*user_types)
+        @user_types = user_types
+
+        user_types.each do |user_type|
+          define_method "current_#{user_type}" do
+            @current_user ||= begin
+              resource_class = class_for("#{user_type}")
+              resource_id    = send("current_#{user_type}_id")
+
+              if resource_id.present?
+                resource_class.resource_for_id(resource_id)
+              end
+            end || send("log_out_#{user_type}")
+          end
+
+          define_method "current_#{user_type}=" do |user|
+            session[session_key_for("#{user_type}")] = user ? user.id : nil
+            @current_user = user || false
+          end
+
+          define_method "current_#{user_type}_id" do
+            session[session_key_for("#{user_type}")]
+          end
+
+          define_method "#{user_type}_logged_in?" do
+            !send("current_#{user_type}").nil?
+          end
+
+          define_method "log_out_#{user_type}" do
+            session[session_key_for("#{user_type}")] = nil
+          end
+
+          send(:helper_method, "current_#{user_type}", "#{user_type}_logged_in?")
+        end
+
+        def user_types
+          @user_types
+        end
+      end
+    end
+
+    private
+
+    def class_for(user_type)
+      user_type.to_s.classify.constantize
+    end
+
+    def session_key_for(user_type)
+      class_for(user_type).session_key
     end
 
     def authorized?
@@ -19,7 +68,7 @@ module SimplestAuth
       flash[:error] = login_message
       redirect_to new_session_url
     end
-    
+
     def login_message
       "Login or Registration Required"
     end
@@ -38,34 +87,8 @@ module SimplestAuth
     end
 
     def logged_in?
-      !current_user_id.nil?
+      self.class.user_types.any? {|t| send("#{t}_logged_in?") }
     end
 
-    def current_user
-      @current_user ||= begin
-        if user_class.respond_to?(:get)
-          user_class.get(current_user_id)
-        else
-          current_user_id && user_class.where(:id => current_user_id).first
-        end
-      end || clear_session
-    end
-
-    def current_user=(user)
-      session[session_key] = user ? user.id : nil
-      @current_user = user || false
-    end
-
-    def current_user_id
-      session[session_key]
-    end
-    
-    def clear_session
-      session[session_key] = nil
-    end
-    
-    def self.included(base)
-      base.send :helper_method, :current_user, :logged_in?, :authorized? if base.respond_to? :helper_method
-    end
   end
 end
