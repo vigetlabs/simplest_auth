@@ -6,8 +6,6 @@ require 'simplest_auth/model/mongo_mapper'
 
 module SimplestAuth
   module Model
-    RecordNotFound = Class.new(StandardError) unless defined?(RecordNotFound)
-
     extend ActiveSupport::Concern
 
     included do

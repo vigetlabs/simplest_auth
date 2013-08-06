@@ -1,7 +1,6 @@
 module SimplestAuth
-  class UndefinedMethodError < StandardError; end
-
   module Controller
+
     def self.included(base)
       base.extend(ClassMethods)
       base.send :helper_method, :authorized?
