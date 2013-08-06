@@ -12,19 +12,18 @@ module SimplestAuth
 
         user_types.each do |user_type|
           define_method "current_#{user_type}" do
-            @current_user ||= begin
-              resource_class = class_for("#{user_type}")
-              resource_id    = send("current_#{user_type}_id")
+            ivar_name = "@current_#{user_type}"
 
-              if resource_id.present?
-                resource_class.resource_for_id(resource_id)
-              end
-            end || send("log_out_#{user_type}")
+            if !instance_variable_defined?(ivar_name)
+              instance_variable_set(ivar_name, fetch_logged_in(:"#{user_type}"))
+            end
+
+            instance_variable_get(ivar_name) || send("log_out_#{user_type}")
           end
 
           define_method "current_#{user_type}=" do |user|
-            session[session_key_for("#{user_type}")] = user ? user.id : nil
-            @current_user = user || false
+            session[session_key_for("#{user_type}")] = user.try(:id)
+            instance_variable_set("@current_#{user_type}", user)
           end
 
           define_method "current_#{user_type}_id" do
@@ -37,6 +36,7 @@ module SimplestAuth
 
           define_method "log_out_#{user_type}" do
             session[session_key_for("#{user_type}")] = nil
+            instance_variable_set("@current_#{user_type}", nil)
           end
 
           send(:helper_method, "current_#{user_type}", "#{user_type}_logged_in?")
@@ -49,6 +49,15 @@ module SimplestAuth
     end
 
     private
+
+    def fetch_logged_in(user_type)
+      resource_class = class_for(user_type)
+      resource_id    = send("current_#{user_type}_id")
+
+      if resource_id.present?
+        resource_class.resource_for_id(resource_id)
+      end
+    end
 
     def class_for(user_type)
       user_type.to_s.classify.constantize
