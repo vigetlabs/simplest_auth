@@ -3,12 +3,13 @@ module SimplestAuth
 
     def self.included(base)
       base.extend(ClassMethods)
+      base.class_attribute :user_types
       base.send :helper_method, :authorized?
     end
 
     module ClassMethods
       def track_authenticated(*user_types)
-        @user_types = user_types
+        self.user_types = user_types
 
         user_types.each do |user_type|
           define_method "current_#{user_type}" do
@@ -40,10 +41,6 @@ module SimplestAuth
           end
 
           send(:helper_method, "current_#{user_type}", "#{user_type}_logged_in?")
-        end
-
-        def user_types
-          @user_types
         end
       end
     end
