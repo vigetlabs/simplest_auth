@@ -9,6 +9,7 @@ require File.dirname(__FILE__) + '/../lib/simplest_auth'
 
 class Session
   include SimplestAuth::Session
+  authentication_identifier :email
 end
 
 class BaseModel

@@ -4,6 +4,14 @@ module SimplestAuth
 
     module ClassMethods
 
+      def persist_authenticated(user_type)
+        @user_type_to_persist = user_type.to_sym
+      end
+
+      def user_type_to_persist
+        @user_type_to_persist || :user
+      end
+
       def set_session_class_name(class_name)
         @session_class_name = class_name
       end
@@ -32,6 +40,10 @@ module SimplestAuth
 
     private
 
+    def user_type_to_persist
+      self.class.user_type_to_persist
+    end
+
     def param_key
       session_class.model_name.param_key.to_sym
     end
@@ -42,8 +54,9 @@ module SimplestAuth
 
       @session = session_class.new(params[param_key])
       if @session.valid?
-        self.current_user = @session.user
-        flash[:notice] = message
+        send("current_#{user_type_to_persist}=", @session.user)
+
+        self.flash[:notice] = message
         redirect_to redirect_url
       else
         render :new
@@ -54,7 +67,8 @@ module SimplestAuth
       message      = options[:message] || 'You have signed out'
       redirect_url = options[:url] || root_url
 
-      self.current_user = nil
+      send("log_out_#{user_type_to_persist}")
+
       flash[:notice] = message
       redirect_to redirect_url
     end

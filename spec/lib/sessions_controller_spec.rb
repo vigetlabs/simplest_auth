@@ -28,13 +28,19 @@ class SessionsController
   include DummyController
 end
 
+class Student
+end
+
 class CustomSession
   include SimplestAuth::Session
+  authentication_identifier :email
 end
 
 class CustomSessionsController
   include SimplestAuth::SessionsController
   include DummyController
+
+  persist_authenticated :student
 
   def create
     sign_user_in_or_render(:message => 'Hi', :url => '/admin')
@@ -148,19 +154,21 @@ describe SimplestAuth::SessionsController do
 
     describe "#destroy" do
       it "removes the user from session" do
-        subject.should_receive(:current_user=).with(nil)
+        subject.should_receive(:log_out_user).with()
         subject.destroy
       end
 
       it "sets the flash" do
-        flash = double('flash')
-        flash.should_receive(:[]=).with(:notice, 'You have signed out')
-
+        flash = double('flash').tap {|f| f.should_receive(:[]=).with(:notice, 'You have signed out') }
         subject.stub(:flash).with().and_return(flash)
+
+        subject.stub(:log_out_user)
+
         subject.destroy
       end
 
       it "redirects" do
+        subject.stub(:log_out_user)
         subject.should_receive(:redirect_to).with('/')
         subject.destroy
       end
@@ -193,29 +201,50 @@ describe SimplestAuth::SessionsController do
       end
 
       describe "#create" do
+        it "stores the current user" do
+          student = Student.new
+          new_session.stub(:user).with().and_return(student)
+
+          subject.should_receive(:current_student=).with(student)
+
+          subject.create
+        end
+
         it "sets the flash" do
           flash = double('flash').tap {|f| f.should_receive(:[]=).with(:notice, 'Hi') }
-
           subject.stub(:flash).with().and_return(flash)
+
+          subject.stub(:current_student=)
+
           subject.create
         end
 
         it "redirects" do
+          subject.stub(:current_student=)
           subject.should_receive(:redirect_to).with('/admin')
           subject.create
         end
       end
 
       describe "#destroy" do
+        it "removes the user from session" do
+          subject.should_receive(:log_out_student).with()
+          subject.destroy
+        end
+
         it "sets the flash" do
           flash = double('flash').tap {|f| f.should_receive(:[]=).with(:notice, 'Bye') }
-
           subject.stub(:flash).with().and_return(flash)
+
+          subject.stub(:log_out_student)
+
           subject.destroy
         end
 
         it "redirects" do
+          subject.stub(:log_out_student)
           subject.should_receive(:redirect_to).with('/survey')
+
           subject.destroy
         end
       end

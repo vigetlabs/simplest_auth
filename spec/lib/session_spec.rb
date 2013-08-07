@@ -1,33 +1,23 @@
 require 'spec_helper'
 
+Admin = Class.new
+
 class AdminSession
   include SimplestAuth::Session
+  authentication_identifier :email
 end
 
-class Admin
+class OtherSession
+  include SimplestAuth::Session
+  set_user_class_name 'Admin'
+  authentication_identifier :username
 end
 
-describe SimplestAuth::Session do
+describe ::Session do
 
   describe ".user_class_name" do
     it "has a default value" do
       ::Session.user_class_name.should == 'User'
-    end
-
-    it "can be overridden" do
-      OtherSession = Class.new do
-        include SimplestAuth::Session
-        set_user_class_name 'Admin'
-      end
-
-      OtherSession.user_class_name.should == 'Admin'
-    end
-  end
-
-  describe ".user_class" do
-    it "returns the appropriate class" do
-      AdminSession.stub(:user_class_name).and_return('Admin')
-      AdminSession.user_class.should == Admin
     end
   end
 
@@ -114,5 +104,52 @@ describe SimplestAuth::Session do
       subject.user.should == 'user'
     end
   end
+end
 
+describe AdminSession do
+  describe ".user_class" do
+    it "returns the appropriate class" do
+      described_class.user_class.should == Admin
+    end
+  end
+end
+
+describe OtherSession do
+
+  describe ".user_class_name" do
+    it "knows the configured value" do
+      described_class.user_class_name.should == 'Admin'
+    end
+  end
+
+  describe "validations" do
+    it "requires a username" do
+      subject = described_class.new
+      subject.valid?
+
+      subject.errors[:username].should == ["can't be blank"]
+    end
+
+    it "does not set errors on base if there is no username or password" do
+      subject = described_class.new(:username => ' ', :password => ' ')
+      subject.valid?
+
+      subject.errors[:base].should be_empty
+    end
+
+    it "sets an error when there is no user" do
+      subject = described_class.new(:username => 'username', :password => 'password')
+      Admin.stub(:authenticate).with('username', 'password').and_return(nil)
+
+      subject.valid?
+      subject.errors[:base].should == ["Admin not found for supplied credentials"]
+    end
+
+    it "does not set an error when there is a user" do
+      described_class.stub(:user).with().and_return(Admin.new)
+
+      subject.valid?
+      subject.errors[:base].should be_empty
+    end
+  end
 end
