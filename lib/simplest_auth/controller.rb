@@ -71,7 +71,11 @@ module SimplestAuth
     def access_denied
       store_location
       flash[:error] = login_message
-      redirect_to new_session_url
+      redirect_to login_url
+    end
+
+    def login_url
+      new_session_url
     end
 
     def login_message
