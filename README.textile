@@ -38,7 +38,7 @@ To get started, just use the @SimplestAuth::Model@ mix-in, and tell it how you w
 <pre><code>
     class User < ActiveRecord::Base
       include SimplestAuth::Model
-      
+
       authenticate_by :email
     end
 </code></pre>
@@ -48,7 +48,7 @@ The module provides accessors for both @password@ and @password_confirmation@, b
 <pre><code>
     validates_presence_of :email
     validates_uniqueness_of :email
-    
+
     validates_presence_of :password, :on => :create
     validates_confirmation_of :password, :if => :password_required?
 </code></pre>
@@ -60,10 +60,10 @@ The full model class:
 <pre><code>
     class User < ActiveRecord::Base
       include SimplestAuth::Model
-      
+
       validates_presence_of :email
       validates_uniqueness_of :email
-      
+
       validates_presence_of :password, :on => :create
       validates_confirmation_of :password, :if => :password_required?
     end
@@ -83,9 +83,9 @@ The plugin defines the @user_class@ method so that it can find the appropriate o
 
 <pre><code>
     class SessionsController < ApplicationController
-      
+
       def new; end
-      
+
       def create
         if user = User.authenticate(params[:email], params[:password])
           self.current_user = user
@@ -106,6 +106,20 @@ The plug-in also defines some convenient helpers to use in your views:
 * *@current_user@*: The user object of the currently logged-in user (or nil if the user isn't logged-in)
 * *@logged_in?@*: Is there a user logged in?
 * *@authorized?@*: Is this user authorized? Defaults to simply checking for logged_in? Override for your authorization scheme.
+
+h3. I18n
+
+Simplest Auth uses the I18n API to lookup user messages. To customize your messages you can create override these values in a locale file like this:
+
+<pre><code>
+en:
+  simplest_auth:
+    login_message: Login or Registration Required
+    session:
+      create: You have signed in successfully
+      destroy: You have signed out
+      auth_error: "%{user_class} not found for supplied credentials"
+</code></pre>
 
 h2. TODO
 

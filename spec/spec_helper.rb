@@ -5,6 +5,8 @@ require 'active_model'
 
 require File.dirname(__FILE__) + '/../lib/simplest_auth'
 
+I18n.load_path += Dir["config/locales/*.yml"]
+
 # Global dummy objects used in multiple tests
 
 class Session

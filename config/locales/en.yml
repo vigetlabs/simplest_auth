@@ -1,0 +1,7 @@
+en:
+  simplest_auth:
+    login_message: Login or Registration Required
+    session:
+      create: You have signed in successfully
+      destroy: You have signed out
+      auth_error: "%{user_class} not found for supplied credentials"

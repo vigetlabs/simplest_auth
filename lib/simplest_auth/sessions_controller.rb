@@ -49,7 +49,7 @@ module SimplestAuth
     end
 
     def sign_user_in_or_render(options = {})
-      message      = options[:message] || 'You have signed in successfully'
+      message      = options[:message] || I18n.t('simplest_auth.session.create')
       redirect_url = options[:url] || root_url
 
       @session = session_class.new(params[param_key])
@@ -64,7 +64,7 @@ module SimplestAuth
     end
 
     def sign_user_out(options = {})
-      message      = options[:message] || 'You have signed out'
+      message      = options[:message] || I18n.t('simplest_auth.session.destroy')
       redirect_url = options[:url] || root_url
 
       send("log_out_#{user_type_to_persist}")

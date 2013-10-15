@@ -79,7 +79,7 @@ module SimplestAuth
     end
 
     def login_message
-      "Login or Registration Required"
+      I18n.t('simplest_auth.login_message')
     end
 
     def store_location

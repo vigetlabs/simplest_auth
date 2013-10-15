@@ -60,7 +60,7 @@ module SimplestAuth
     end
 
     def user_exists_for_credentials
-      errors.add(:base, "#{user_class} not found for supplied credentials") unless user.present?
+      errors.add(:base, I18n.t('simplest_auth.session.auth_error', :user_class => user_class)) unless user.present?
     end
 
     def credentials_supplied?
