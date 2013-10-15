@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency('bundler', '~> 1.3')
   spec.add_development_dependency('rake')
-  spec.add_development_dependency('activerecord')
+  spec.add_development_dependency('activerecord', '~> 4.0')
   spec.add_development_dependency('datamapper')
   spec.add_development_dependency('bson_ext') # Avoid warnings when running specs
   spec.add_development_dependency('mongo_mapper')
