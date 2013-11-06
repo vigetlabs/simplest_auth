@@ -56,6 +56,8 @@ module SimplestAuth
       if @session.valid?
         send("current_#{user_type_to_persist}=", @session.user)
 
+        after_sign_in
+
         self.flash[:notice] = message
         redirect_to redirect_url
       else
@@ -75,6 +77,10 @@ module SimplestAuth
 
     def session_class
       self.class.session_class_name.constantize
+    end
+    
+    def after_sign_in
+      # NOOP: override in inheriting class if necessary
     end
 
   end

@@ -115,6 +115,13 @@ describe SimplestAuth::SessionsController do
           subject.create
         end
 
+        it "calls the :after_sign_in hook" do
+          new_session.stub(:user)
+
+          subject.should_receive(:after_sign_in).with()
+          subject.create
+        end
+
         it "sets the flash" do
           flash = double('flash')
           flash.should_receive(:[]=).with(:notice, 'You have signed in successfully')
@@ -137,6 +144,13 @@ describe SimplestAuth::SessionsController do
         before do
           new_session.stub(:valid?).with().and_return(false)
           ::Session.stub(:new).and_return(new_session)
+        end
+
+        it "does not call the :after_sign_in hook" do
+          new_session.stub(:user)
+
+          subject.should_receive(:after_sign_in).never
+          subject.create
         end
 
         it "renders" do
