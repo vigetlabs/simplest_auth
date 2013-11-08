@@ -1,5 +1,7 @@
 h1. SimplestAuth
 
+"!https://codeclimate.com/github/vigetlabs/simplest_auth.png!":https://codeclimate.com/github/vigetlabs/simplest_auth
+
 simplest_auth is a gem to be used with Rails applications where RESTful Authentication is overkill - it handles authentication and nothing else (e.g. password resets, etc...)
 
 simplest_auth is now compatible with both ActiveRecord and DataMapper (the README displays examples for AR)
