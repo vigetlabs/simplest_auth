@@ -1,12 +1,5 @@
-begin
-  require 'bcrypt'
-rescue LoadError
-  begin
-    gem 'bcrypt-ruby'
-  rescue Gem::LoadError
-    puts "Please install the bcrypt-ruby gem"
-  end
-end
+require 'simplest_auth/bcrypt'
+require 'simplest_auth/active_model/model'
 
 # SimplestAuth
 require 'simplest_auth/version'

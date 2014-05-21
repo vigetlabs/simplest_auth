@@ -13,38 +13,38 @@ class OtherSession
   authentication_identifier :username
 end
 
-describe ::Session do
+describe Session do
 
   describe ".user_class_name" do
     it "has a default value" do
-      ::Session.user_class_name.should == 'User'
+      described_class.user_class_name.should == 'User'
     end
   end
 
   describe "validations" do
     it "requires an email address" do
-      subject = Session.new
+      subject = described_class.new
       subject.valid?
 
       subject.errors[:email].should == ["can't be blank"]
     end
 
     it "requires a password" do
-      subject = Session.new
+      subject = described_class.new
       subject.valid?
 
       subject.errors[:password].should == ["can't be blank"]
     end
 
     it "does not set errors on base if there is no email or password" do
-      subject = Session.new(:email => ' ', :password => ' ')
+      subject = described_class.new(:email => ' ', :password => ' ')
       subject.valid?
 
       subject.errors[:base].should be_empty
     end
 
     it "sets an error when there is no user" do
-      subject = Session.new(:email => 'user@host.com', :password => 'password')
+      subject = described_class.new(:email => 'user@host.com', :password => 'password')
       User.stub(:authenticate).with('user@host.com', 'password').and_return(nil)
 
       subject.valid?
@@ -52,7 +52,7 @@ describe ::Session do
     end
 
     it "does not set an error when there is a user" do
-      subject = Session.new
+      subject = described_class.new
       subject.stub(:user).with().and_return(User.new)
 
       subject.valid?
@@ -63,29 +63,29 @@ describe ::Session do
 
   describe "#email" do
     it "is nil by default" do
-      Session.new.email.should be_nil
+      described_class.new.email.should be_nil
     end
 
     it "returns the set value" do
-      subject = Session.new(:email => 'user@host.com')
+      subject = described_class.new(:email => 'user@host.com')
       subject.email.should == 'user@host.com'
     end
   end
 
   describe "#password" do
     it "is nil by default" do
-      Session.new.password.should be_nil
+      described_class.new.password.should be_nil
     end
 
     it "returns the set value" do
-      subject = Session.new(:password => 'password')
+      subject = described_class.new(:password => 'password')
       subject.password.should == 'password'
     end
   end
 
   describe "#user_class" do
     it "returns the constant from the class" do
-      Session.new.user_class.should == User
+      described_class.new.user_class.should == User
     end
   end
 
@@ -93,14 +93,14 @@ describe ::Session do
     it "knows there's no matching user" do
       User.stub(:authenticate).with('user@host.com', 'password').and_return(nil)
 
-      subject = Session.new(:email => 'user@host.com', :password => 'password')
+      subject = described_class.new(:email => 'user@host.com', :password => 'password')
       subject.user.should be_nil
     end
 
     it "knows the matching user" do
       User.stub(:authenticate).with('user@host.com', 'password').and_return('user')
 
-      subject = Session.new(:email => 'user@host.com', :password => 'password')
+      subject = described_class.new(:email => 'user@host.com', :password => 'password')
       subject.user.should == 'user'
     end
   end

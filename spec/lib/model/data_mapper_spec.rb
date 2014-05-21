@@ -1,5 +1,10 @@
 require 'spec_helper'
-require 'datamapper'
+
+begin
+  require 'data_mapper'
+rescue LoadError
+  require 'datamapper'
+end
 
 class DMUser
   include DataMapper::Resource
