@@ -44,15 +44,19 @@ module SimplestAuth
       self.class.user_type_to_persist
     end
 
-    def param_key
+    def session_param_key
       session_class.model_name.param_key.to_sym
+    end
+
+    def session_params
+      params[session_param_key]
     end
 
     def sign_user_in_or_render(options = {})
       message      = options[:message] || I18n.t('simplest_auth.session.create')
       redirect_url = options[:url] || root_url
 
-      @session = session_class.new(params[param_key])
+      @session = session_class.new(session_params)
       if @session.valid?
         send("current_#{user_type_to_persist}=", @session.user)
 
